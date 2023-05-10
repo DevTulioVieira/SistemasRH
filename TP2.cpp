@@ -208,53 +208,120 @@ void localizar(funcionariolista *lista){
 
 }
 
-int removerCPF(funcionario *aux, string palavra){
-    if(aux==NULL){
-        return 0;
+funcionario* substituto(funcionario *lista){
+    funcionario *ajuda = lista;
+
+    while(ajuda->esq != NULL){
+        ajuda=ajuda->esq;
     }
+    cout<<ajuda->cpf<<" No *"<<endl;
+    return ajuda;
+}
+
+void removerCPF(funcionario *aux, string palavra){
+    if(aux==NULL){
+        return;
+    }
+    cout<<"Cheguei papai"<<endl;
+    cout<<aux->cpf<<endl;
+    cout<<palavra<<endl;
+
     if(aux->cpf==palavra){
         if(aux->dir==NULL && aux->esq==NULL){
-            if(aux->info->dir->cpf==palavra){
-                aux->info->dir=NULL;
+            if(aux->info->dir!=NULL){
+                if(aux->info->dir->cpf==palavra){
+                    aux->info->dir=NULL;
+                }
             }
-            if(aux->info->esq->cpf==palavra){
-                aux->info->esq=NULL;
+            if(aux->info->esq!=NULL){
+                if(aux->info->esq->cpf==palavra){
+                    aux->info->esq=NULL;
+                }
             }
-            free(aux);
+            cout<<aux->cpf<<"Removeu"<<endl;
+            delete aux;
+            return;
         }
-        if(aux->dir==NULL && aux->esq==NULL){
+        if(aux->dir==NULL && aux->esq!=NULL){
+            if(aux->info->dir!=NULL){
+                if(aux->info->dir->cpf==palavra){
+                    aux->info->dir=aux->esq;
+                    aux->esq->info=aux->info;
+                }
+            }
+            if(aux->info->esq!=NULL){
+                if(aux->info->esq->cpf==palavra){
+                    aux->info->esq=aux->esq;
+                    aux->esq->info=aux->info;
+                }
+            }
+            cout<<aux->cpf<<"Removeu"<<endl;
+            delete aux;
+            return;
+        }
+        if(aux->dir!=NULL && aux->esq==NULL){
+            if(aux->info->dir!=NULL){
+                if(aux->info->dir->cpf==palavra){
+                    aux->info->dir=aux->dir;
+                    aux->dir->info=aux->info;
+                }
+            }
+            if(aux->info->esq!=NULL){
+                if(aux->info->esq->cpf==palavra){
+                    aux->info->esq=aux->dir;
+                    aux->dir->info=aux->info;
+                }
+            }
+            cout<<aux->cpf<<"Removeu"<<endl;
+            delete aux;
+            return;
+        }
+
+        if(aux->dir!=NULL && aux->esq!=NULL){
+            funcionario *sub = substituto(sub->dir);
+            sub->dir=aux->dir;
+            sub->esq=aux->esq;
             if(aux->info->dir->cpf==palavra){
-                aux->info->dir=NULL;
+                aux->info->dir=sub;
             }
             if(aux->info->esq->cpf==palavra){
-                aux->info->esq=NULL;
+                aux->info->esq=sub;
             }
+            if(sub->info->dir->cpf==palavra){
+                sub->info->dir=NULL;
+            }
+            if(sub->info->esq->cpf==palavra){
+                sub->info->esq=NULL;
+            }
+            cout<<aux->cpf<<"Removeu"<<endl;
             free(aux);
+            return;
         }
 
 
-        return 1;
+    }
+
+    if(aux->esq!=NULL){
+        removerCPF(aux->esq, palavra);
     }
     if(aux->dir!=NULL){
-        return removerCPF(aux->dir, palavra);
-    }
-    if(aux->esq!=NULL){
-        return removerCPF(aux->esq, palavra);
+        removerCPF(aux->dir, palavra);
     }
 }
+
 void remover(funcionariolista *lista){
     funcionario *aux;
     aux=lista->inicio;
 
-    int ajuda=0, removido=0;
+    int ajuda=1, removido=0;
     string palavra;
     cout<<"Insira o CPF do funcionario: ";
     cin>>palavra;
-    ajuda=verificaCPF(aux, palavra);
+    // ajuda=verificaCPF(aux, palavra);
     if(ajuda==0){
         cout<<"Nao foi possivel localizar os dados do CPF, verifique se esta correto!"<<endl;
     }else{
-        removido=removerCPF(aux, palavra);
+        removerCPF(aux, palavra);
     }
 
 }
@@ -285,6 +352,7 @@ int main(){
 
         case 3:
             remover(&F1);
+            system("pause");
         break;
 
         case 4:
