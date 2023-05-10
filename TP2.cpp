@@ -118,6 +118,7 @@ void cadastro(funcionariolista *lista){
     if (lista->inicio == NULL){
         lista->inicio = novo;
         novo->info=NULL;
+        cout<<"funcionario cadastrado com sucesso!"<<endl;
     }else{
         cpfErro:
         ajuda=verificaCPF(raiz, novo->cpf);
@@ -156,6 +157,9 @@ void busca(funcionario *aux){
 void mostracadastros(funcionariolista *lista){
     funcionario *aux;
     aux=lista->inicio;
+    if(lista->inicio==NULL){
+       cout<<"Nenhum funcionario cadastrado!"<<endl;
+    }
     busca(aux);
 }
 
@@ -278,27 +282,67 @@ void removerCPF(funcionario *aux, string palavra){
         }
 
         if(aux->dir!=NULL && aux->esq!=NULL){
-            funcionario *sub = substituto(sub->dir);
-            sub->dir=aux->dir;
-            sub->esq=aux->esq;
-            if(aux->info->dir->cpf==palavra){
-                aux->info->dir=sub;
-            }
-            if(aux->info->esq->cpf==palavra){
-                aux->info->esq=sub;
-            }
-            if(sub->info->dir->cpf==palavra){
-                sub->info->dir=NULL;
-            }
-            if(sub->info->esq->cpf==palavra){
+            funcionario *sub = substituto(aux->dir);
+            cout<<aux->cpf<<endl;
+            cout<<sub->cpf<<endl;
+            if(sub->dir == NULL && sub->esq == NULL){
+                if(sub->cpf == aux->dir->cpf){
+                    sub->esq=aux->esq;
+                    sub->info=aux->info;
+                    aux->esq->info=sub;
+                    if(aux->info->dir!=NULL){
+                        if(aux->info->dir->cpf==palavra){
+                            aux->info->dir=sub;
+                        }
+                    }
+                    if(aux->info->esq!=NULL){
+                        if(aux->info->esq->cpf==palavra){
+                            aux->info->esq=sub;
+                        }
+                    }
+                    cout<<aux->cpf<<"Removeu"<<endl;
+                    delete aux;
+                    return;
+                }
+                sub->dir=aux->dir;
+                sub->esq=aux->esq;
                 sub->info->esq=NULL;
+                sub->info=aux->info;
+                aux->dir->info=sub;
+                aux->esq->info=sub;
+                if(aux->info->dir!=NULL){
+                    if(aux->info->dir->cpf==palavra){
+                        aux->info->dir=sub;
+                    }
+                }
+                if(aux->info->esq!=NULL){
+                    if(aux->info->esq->cpf==palavra){
+                        aux->info->esq=sub;
+                    }
+                }
+                cout<<aux->cpf<<"Removeu"<<endl;
+                delete aux;
+                return;
+            }
+            
+            sub->esq=aux->esq;
+            sub->info=aux->info;
+            aux->esq->info=sub;
+            if(aux->info->dir!=NULL){
+                if(aux->info->dir->cpf==palavra){
+                    aux->info->dir=sub;
+                }
+            }
+            if(aux->info->esq!=NULL){
+                if(aux->info->esq->cpf==palavra){
+                    aux->info->esq=sub;
+                }
             }
             cout<<aux->cpf<<"Removeu"<<endl;
-            free(aux);
+            delete aux;
+            
             return;
         }
-
-
     }
 
     if(aux->esq!=NULL){
@@ -306,6 +350,65 @@ void removerCPF(funcionario *aux, string palavra){
     }
     if(aux->dir!=NULL){
         removerCPF(aux->dir, palavra);
+    }
+}
+
+void removerRAIZ(funcionariolista *lista, string palavra){
+    funcionario *aux;
+    aux=lista->inicio;
+
+    if(aux->info==NULL){
+        if(aux->esq==NULL && aux->dir==NULL){
+            cout<<aux->cpf<<"Removeu1"<<endl;
+            lista->inicio=NULL;
+            delete aux;
+            return;
+        }
+        if(aux->dir != NULL){
+            funcionario *sub = substituto(aux->dir);
+            if(sub->dir == NULL && sub->esq == NULL){
+                if(sub->cpf == aux->dir->cpf){
+                    if(aux->esq != NULL){
+                        sub->esq=aux->esq;
+                        aux->esq->info=sub;
+                    }
+                    sub->info=NULL;
+                    lista->inicio=sub;
+                    cout<<aux->cpf<<"Removeu2"<<endl;
+                    delete aux;
+                    return;
+                }
+                aux->dir->info=sub;
+                sub->info->esq=NULL;
+                sub->dir=aux->dir;
+                if(aux->esq != NULL){
+                    sub->esq=aux->esq;
+                    aux->esq->info=sub;
+                }
+                sub->info=NULL;
+                lista->inicio=sub;
+                cout<<aux->cpf<<"Removeu3"<<endl;
+                delete aux;
+                return;
+            }
+            if(aux->esq != NULL){
+                sub->esq=aux->esq;
+                aux->esq->info=sub;
+            }
+            sub->dir->info=sub->info;
+            aux->dir->info=sub;
+            sub->info=NULL;
+            lista->inicio=sub;
+            cout<<aux->cpf<<"Removeu4"<<endl;
+            delete aux;
+            return;
+        }else{
+            aux->esq->info=NULL;
+            lista->inicio=aux->esq;
+            cout<<aux->cpf<<" Removeu5"<<endl;
+            delete aux;
+            return;
+        }
     }
 }
 
@@ -321,7 +424,12 @@ void remover(funcionariolista *lista){
     if(ajuda==0){
         cout<<"Nao foi possivel localizar os dados do CPF, verifique se esta correto!"<<endl;
     }else{
-        removerCPF(aux, palavra);
+        if(aux->info==NULL){
+            cout<<"removendo raiz"<<endl;
+            removerRAIZ(&*lista, palavra);
+        }else{
+            removerCPF(aux, palavra);
+        }
     }
 
 }
